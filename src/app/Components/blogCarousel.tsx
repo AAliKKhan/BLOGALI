@@ -1,12 +1,39 @@
 
-"use client"
+"use client";
 import Link from 'next/link';
-import React, { useRef } from 'react';
-import Data from '../../../Public/data.json';
+import React, { useRef, useState, useEffect } from 'react';
 import BlogCard from './card';
+
+// Define the type for blog data
+interface Blog {
+  id: number;
+  title: string;
+  content: string;
+  author: string;
+  date: string;
+  imageURL: string;
+}
 
 const BlogCarousel = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
+  const [data, setData] = useState<Blog[]>([]); // Use the Blog type for the state
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/data.json'); // Assuming the data.json file is in the public folder
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const result: Blog[] = await response.json(); // Use Blog[] type for fetched data
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const scrollLeft = () => {
     if (carouselRef.current) {
@@ -50,7 +77,7 @@ const BlogCarousel = () => {
             ref={carouselRef}
             className="flex gap-6 overflow-x-auto no-scrollbar"
           >
-            {Data.slice(0, 6).map((blog) => (
+            {data.slice(0, 6).map((blog) => (
               <div
                 key={blog.id}
                 className="min-w-[250px] sm:min-w-[300px] lg:min-w-[400px] flex-shrink-0"
